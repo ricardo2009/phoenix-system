@@ -1,0 +1,32 @@
+name: 🚀 Phoenix Basic Workflow
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  basic-setup:
+    name: 🔧 Basic Setup
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: 🎯 Phoenix System Info
+        run: |
+          echo "🚀 Phoenix System - Basic Workflow"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          
+      - name: 📋 List Project Structure
+        run: |
+          echo "📁 Project Structure:"
+          find . -type f -name "*.py" -o -name "*.js" -o -name "*.tf" | head -20
+          
+      - name: ✅ Workflow Complete
+        run: |
+          echo "✅ Phoenix Basic Workflow completed successfully!"
+
