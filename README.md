@@ -6,6 +6,15 @@ Phoenix é um sistema autônomo baseado em agentes inteligentes que detecta, dia
 
 Durante eventos de alta demanda como Black Friday, plataformas de e-commerce enfrentam picos de tráfego que podem causar degradação crítica de performance. O Phoenix resolve esses problemas em segundos, não minutos, através de uma arquitetura de agentes inteligentes orquestrados pelo Azure AI Foundry.
 
+## 📋 Status dos Workflows
+
+✅ **phoenix-basic.yml** - Workflow básico funcional  
+✅ **phoenix-applications-ultimate.yml** - Deployment de aplicações (CORRIGIDO)  
+✅ **phoenix-infrastructure-ultimate.yml** - Deployment de infraestrutura (CORRIGIDO)  
+✅ **phoenix-monitoring-ultimate.yml** - Monitoramento avançado (CORRIGIDO)  
+
+> **Últimas correções:** Resolvidos erros críticos de sintaxe, instalação do Terraform e compatibilidade com GitHub Actions. Ver [docs/WORKFLOW_FIXES.md](docs/WORKFLOW_FIXES.md) para detalhes.
+
 ## 🏗️ Arquitetura da Solução
 
 ### Componentes Principais
