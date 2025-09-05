@@ -798,15 +798,15 @@ jobs:
   # 🧪 COMPREHENSIVE TESTING ENGINE
   # ═══════════════════════════════════════════════════════════════════════════
   comprehensive-testing:
-    name: 🧪 ${{ matrix.test.type | title }} Tests
+    name: 🧪 ${{ matrix.test.type }} Tests
     runs-on: ubuntu-latest
     needs: [app-orchestration-engine, intelligent-build]
     if: needs.intelligent-build.result == 'success'
-    timeout-minutes: ${{ matrix.test.timeout / 60 }}
+    timeout-minutes: 30
     
     strategy:
       fail-fast: false
-      max-parallel: ${{ matrix.test.parallel && 5 || 1 }}
+      max-parallel: 5
       matrix:
         test: ${{ fromJson(needs.app-orchestration-engine.outputs.test-matrix) }}
         
@@ -838,7 +838,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
-      - name: 🧪 Execute ${{ matrix.test.type | title }} Tests
+      - name: 🧪 Execute ${{ matrix.test.type }} Tests
         run: |
           echo "🧪 Running ${{ matrix.test.type }} tests"
           
@@ -1047,7 +1047,7 @@ jobs:
           # Verify cluster connectivity
           kubectl cluster-info
           
-      - name: 🚀 Execute ${{ needs.app-orchestration-engine.outputs.deployment-strategy | title }} Deployment
+      - name: 🚀 Execute ${{ needs.app-orchestration-engine.outputs.deployment-strategy }} Deployment
         run: |
           STRATEGY="${{ needs.app-orchestration-engine.outputs.deployment-strategy }}"
           ENVIRONMENT="${{ matrix.environment }}"
@@ -1317,10 +1317,10 @@ jobs:
           ## 📋 Executive Summary
           
           **Deployment ID:** `${{ needs.app-orchestration-engine.outputs.deployment-id }}`  
-          **Strategy:** `${{ needs.app-orchestration-engine.outputs.deployment-strategy }}`  
-          **Environments:** `${{ needs.app-orchestration-engine.outputs.environment-matrix }}`  
-          **Applications:** `$(echo '${{ needs.app-orchestration-engine.outputs.application-matrix }}' | jq length)` deployed  
-          **Risk Level:** `${{ fromJson(needs.app-orchestration-engine.outputs.risk-assessment).level }}`  
+          **Strategy:** ${{ needs.app-orchestration-engine.outputs.deployment-strategy }}
+          **Environments:** Multiple environments
+          **Applications:** Multiple applications deployed  
+          **Risk Level:** See risk assessment below  
           
           ## 🎯 Deployment Results
           
