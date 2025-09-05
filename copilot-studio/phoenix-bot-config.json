@@ -1,0 +1,561 @@
+{
+  "name": "Phoenix System Bot",
+  "description": "Intelligent bot for Phoenix incident management system",
+  "version": "1.0.0",
+  "language": "pt-BR",
+  "capabilities": [
+    "incident_monitoring",
+    "status_reporting", 
+    "approval_handling",
+    "escalation_management"
+  ],
+  "topics": [
+    {
+      "id": "greeting",
+      "name": "Greeting",
+      "trigger_phrases": [
+        "olá",
+        "oi",
+        "bom dia",
+        "boa tarde",
+        "boa noite",
+        "help",
+        "ajuda"
+      ],
+      "response": {
+        "type": "adaptive_card",
+        "content": {
+          "type": "AdaptiveCard",
+          "version": "1.4",
+          "body": [
+            {
+              "type": "TextBlock",
+              "text": "🤖 **Phoenix System Bot**",
+              "weight": "Bolder",
+              "size": "Large",
+              "color": "Accent"
+            },
+            {
+              "type": "TextBlock",
+              "text": "Olá! Sou o assistente inteligente do Sistema Phoenix. Posso ajudá-lo com:",
+              "wrap": true,
+              "spacing": "Medium"
+            },
+            {
+              "type": "FactSet",
+              "facts": [
+                {
+                  "title": "🚨 Incidentes",
+                  "value": "Monitorar status e histórico"
+                },
+                {
+                  "title": "📊 Relatórios",
+                  "value": "Gerar relatórios de performance"
+                },
+                {
+                  "title": "✅ Aprovações",
+                  "value": "Processar aprovações de ações"
+                },
+                {
+                  "title": "🔔 Alertas",
+                  "value": "Configurar notificações"
+                }
+              ]
+            }
+          ],
+          "actions": [
+            {
+              "type": "Action.Submit",
+              "title": "Ver Incidentes Ativos",
+              "data": {
+                "action": "list_incidents"
+              }
+            },
+            {
+              "type": "Action.Submit", 
+              "title": "Status do Sistema",
+              "data": {
+                "action": "system_status"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "list_incidents",
+      "name": "List Active Incidents",
+      "trigger_phrases": [
+        "incidentes",
+        "incidents",
+        "problemas",
+        "issues",
+        "alertas",
+        "alerts"
+      ],
+      "response": {
+        "type": "function_call",
+        "function": "get_active_incidents",
+        "parameters": {}
+      }
+    },
+    {
+      "id": "incident_details",
+      "name": "Get Incident Details",
+      "trigger_phrases": [
+        "detalhes do incidente",
+        "incident details",
+        "status do incidente",
+        "incident status"
+      ],
+      "response": {
+        "type": "function_call",
+        "function": "get_incident_details",
+        "parameters": {
+          "incident_id": "{incident_id}"
+        }
+      }
+    },
+    {
+      "id": "system_status",
+      "name": "System Status",
+      "trigger_phrases": [
+        "status do sistema",
+        "system status",
+        "saúde do sistema",
+        "system health"
+      ],
+      "response": {
+        "type": "function_call",
+        "function": "get_system_status",
+        "parameters": {}
+      }
+    },
+    {
+      "id": "approve_action",
+      "name": "Approve Resolution Action",
+      "trigger_phrases": [
+        "aprovar",
+        "approve",
+        "autorizar",
+        "authorize",
+        "sim",
+        "yes"
+      ],
+      "response": {
+        "type": "function_call",
+        "function": "approve_resolution",
+        "parameters": {
+          "incident_id": "{incident_id}",
+          "action": "APPROVE"
+        }
+      }
+    },
+    {
+      "id": "deny_action",
+      "name": "Deny Resolution Action",
+      "trigger_phrases": [
+        "negar",
+        "deny",
+        "rejeitar",
+        "reject",
+        "não",
+        "no"
+      ],
+      "response": {
+        "type": "function_call",
+        "function": "approve_resolution",
+        "parameters": {
+          "incident_id": "{incident_id}",
+          "action": "DENY"
+        }
+      }
+    },
+    {
+      "id": "generate_report",
+      "name": "Generate Report",
+      "trigger_phrases": [
+        "relatório",
+        "report",
+        "resumo",
+        "summary",
+        "estatísticas",
+        "statistics"
+      ],
+      "response": {
+        "type": "function_call",
+        "function": "generate_incident_report",
+        "parameters": {
+          "period": "{period}",
+          "format": "adaptive_card"
+        }
+      }
+    }
+  ],
+  "functions": [
+    {
+      "name": "get_active_incidents",
+      "description": "Retrieve list of active incidents",
+      "endpoint": "https://func-orchestrator-phoenix-dev.azurewebsites.net/api/incidents",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-functions-key": "{function_key}"
+      },
+      "response_template": {
+        "type": "AdaptiveCard",
+        "version": "1.4",
+        "body": [
+          {
+            "type": "TextBlock",
+            "text": "🚨 **Incidentes Ativos**",
+            "weight": "Bolder",
+            "size": "Medium"
+          },
+          {
+            "type": "Container",
+            "items": "{{#incidents}}",
+            "separator": true,
+            "items": [
+              {
+                "type": "ColumnSet",
+                "columns": [
+                  {
+                    "type": "Column",
+                    "width": "stretch",
+                    "items": [
+                      {
+                        "type": "TextBlock",
+                        "text": "**{{title}}**",
+                        "weight": "Bolder"
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "ID: {{id}}",
+                        "size": "Small",
+                        "color": "Accent"
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "Status: {{status}}",
+                        "size": "Small"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Column",
+                    "width": "auto",
+                    "items": [
+                      {
+                        "type": "TextBlock",
+                        "text": "{{severity}}",
+                        "color": "{{#if (eq severity 'critical')}}Attention{{else}}Good{{/if}}",
+                        "weight": "Bolder"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "Atualizar",
+            "data": {
+              "action": "refresh_incidents"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "get_incident_details",
+      "description": "Get detailed information about a specific incident",
+      "endpoint": "https://func-orchestrator-phoenix-dev.azurewebsites.net/api/incident/{incident_id}",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-functions-key": "{function_key}"
+      },
+      "response_template": {
+        "type": "AdaptiveCard",
+        "version": "1.4",
+        "body": [
+          {
+            "type": "TextBlock",
+            "text": "📋 **Detalhes do Incidente**",
+            "weight": "Bolder",
+            "size": "Medium"
+          },
+          {
+            "type": "FactSet",
+            "facts": [
+              {
+                "title": "ID",
+                "value": "{{incident.id}}"
+              },
+              {
+                "title": "Título",
+                "value": "{{incident.title}}"
+              },
+              {
+                "title": "Severidade",
+                "value": "{{incident.severity}}"
+              },
+              {
+                "title": "Status",
+                "value": "{{incident.status}}"
+              },
+              {
+                "title": "Criado em",
+                "value": "{{incident.created_at}}"
+              },
+              {
+                "title": "Agentes Atribuídos",
+                "value": "{{join incident.assigned_agents ', '}}"
+              }
+            ]
+          },
+          {
+            "type": "TextBlock",
+            "text": "**Ações de Resolução:**",
+            "weight": "Bolder",
+            "spacing": "Medium"
+          },
+          {
+            "type": "Container",
+            "items": "{{#incident.resolution_actions}}",
+            "items": [
+              {
+                "type": "TextBlock",
+                "text": "• {{description}}",
+                "wrap": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "get_system_status",
+      "description": "Get overall system health status",
+      "endpoint": "https://func-orchestrator-phoenix-dev.azurewebsites.net/api/health",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-functions-key": "{function_key}"
+      },
+      "response_template": {
+        "type": "AdaptiveCard",
+        "version": "1.4",
+        "body": [
+          {
+            "type": "TextBlock",
+            "text": "💚 **Status do Sistema Phoenix**",
+            "weight": "Bolder",
+            "size": "Medium"
+          },
+          {
+            "type": "FactSet",
+            "facts": [
+              {
+                "title": "Status Geral",
+                "value": "{{status}}"
+              },
+              {
+                "title": "Agente Orquestrador",
+                "value": "{{#if agent_initialized}}✅ Ativo{{else}}❌ Inativo{{/if}}"
+              },
+              {
+                "title": "Última Verificação",
+                "value": "{{timestamp}}"
+              },
+              {
+                "title": "Versão",
+                "value": "{{version}}"
+              }
+            ]
+          },
+          {
+            "type": "TextBlock",
+            "text": "**Serviços Azure:**",
+            "weight": "Bolder",
+            "spacing": "Medium"
+          },
+          {
+            "type": "FactSet",
+            "facts": [
+              {
+                "title": "Cosmos DB",
+                "value": "{{azure_services.cosmos_db}}"
+              },
+              {
+                "title": "Event Hub",
+                "value": "{{azure_services.event_hub}}"
+              },
+              {
+                "title": "OpenAI",
+                "value": "{{azure_services.openai}}"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "approve_resolution",
+      "description": "Approve or deny resolution actions",
+      "endpoint": "https://func-communication-phoenix-dev.azurewebsites.net/api/approval",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-functions-key": "{function_key}"
+      },
+      "body": {
+        "incident_id": "{incident_id}",
+        "response": "{action}",
+        "responder": "{user_name}"
+      },
+      "response_template": {
+        "type": "AdaptiveCard",
+        "version": "1.4",
+        "body": [
+          {
+            "type": "TextBlock",
+            "text": "{{#if success}}✅ **Aprovação Processada**{{else}}❌ **Erro na Aprovação**{{/if}}",
+            "weight": "Bolder",
+            "color": "{{#if success}}Good{{else}}Attention{{/if}}"
+          },
+          {
+            "type": "TextBlock",
+            "text": "{{message}}",
+            "wrap": true
+          },
+          {
+            "type": "FactSet",
+            "facts": [
+              {
+                "title": "Incidente ID",
+                "value": "{{incident_id}}"
+              },
+              {
+                "title": "Processado em",
+                "value": "{{timestamp}}"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "generate_incident_report",
+      "description": "Generate incident summary report",
+      "endpoint": "https://func-orchestrator-phoenix-dev.azurewebsites.net/api/incidents",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-functions-key": "{function_key}"
+      },
+      "response_template": {
+        "type": "AdaptiveCard",
+        "version": "1.4",
+        "body": [
+          {
+            "type": "TextBlock",
+            "text": "📊 **Relatório de Incidentes**",
+            "weight": "Bolder",
+            "size": "Medium"
+          },
+          {
+            "type": "FactSet",
+            "facts": [
+              {
+                "title": "Total de Incidentes",
+                "value": "{{count}}"
+              },
+              {
+                "title": "Gerado em",
+                "value": "{{timestamp}}"
+              }
+            ]
+          },
+          {
+            "type": "TextBlock",
+            "text": "**Resumo por Severidade:**",
+            "weight": "Bolder",
+            "spacing": "Medium"
+          },
+          {
+            "type": "Container",
+            "items": [
+              {
+                "type": "TextBlock",
+                "text": "🔴 Críticos: {{critical_count}}",
+                "color": "Attention"
+              },
+              {
+                "type": "TextBlock",
+                "text": "🟡 Altos: {{high_count}}",
+                "color": "Warning"
+              },
+              {
+                "type": "TextBlock",
+                "text": "🟢 Médios/Baixos: {{medium_low_count}}",
+                "color": "Good"
+              }
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.OpenUrl",
+            "title": "Ver Dashboard Completo",
+            "url": "https://portal.azure.com"
+          }
+        ]
+      }
+    }
+  ],
+  "settings": {
+    "authentication": {
+      "type": "azure_ad",
+      "tenant_id": "{tenant_id}",
+      "client_id": "{client_id}"
+    },
+    "channels": [
+      {
+        "type": "teams",
+        "enabled": true,
+        "settings": {
+          "app_id": "{teams_app_id}",
+          "app_password": "{teams_app_password}"
+        }
+      },
+      {
+        "type": "web_chat",
+        "enabled": true,
+        "settings": {
+          "direct_line_secret": "{direct_line_secret}"
+        }
+      }
+    ],
+    "analytics": {
+      "application_insights": {
+        "instrumentation_key": "{app_insights_key}"
+      }
+    },
+    "security": {
+      "allowed_domains": [
+        "*.azurewebsites.net",
+        "*.microsoft.com"
+      ],
+      "rate_limiting": {
+        "requests_per_minute": 60,
+        "requests_per_hour": 1000
+      }
+    }
+  }
+}
+
