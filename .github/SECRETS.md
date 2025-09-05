@@ -7,10 +7,40 @@ Este documento lista todos os secrets e variáveis necessários para o funcionam
 Configure os seguintes secrets no GitHub Repository Settings > Secrets and variables > Actions:
 
 ### 🔑 Azure Authentication
+
+⚠️ **ATUALIZAÇÃO IMPORTANTE**: A partir de 2024, os workflows usam autenticação individual ao invés do formato JSON consolidado.
+
+**Método Atual (Recomendado):**
+```
+AZURE_CLIENT_ID
+```
+**Descrição:** Client ID do Service Principal  
+**Exemplo:** `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+
+```
+AZURE_CLIENT_SECRET
+```
+**Descrição:** Client Secret do Service Principal  
+**Exemplo:** `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
+
+```
+AZURE_SUBSCRIPTION_ID
+```
+**Descrição:** ID da subscription do Azure  
+**Exemplo:** `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+
+```
+AZURE_TENANT_ID
+```
+**Descrição:** ID do tenant do Azure AD  
+**Exemplo:** `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+
+**Método Legado (Deprecated):**
 ```
 AZURE_CREDENTIALS
 ```
-**Descrição:** Credenciais do Service Principal para autenticação no Azure
+**Descrição:** Credenciais do Service Principal para autenticação no Azure  
+**Status:** 🚨 DEPRECATED - Use os secrets individuais acima  
 **Formato:** JSON
 ```json
 {
@@ -21,29 +51,7 @@ AZURE_CREDENTIALS
 }
 ```
 
-```
-AZURE_SUBSCRIPTION_ID
-```
-**Descrição:** ID da subscription do Azure
-**Exemplo:** `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
-
-```
-AZURE_TENANT_ID
-```
-**Descrição:** ID do tenant do Azure AD
-**Exemplo:** `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
-
-```
-AZURE_CLIENT_ID
-```
-**Descrição:** Client ID do Service Principal
-**Exemplo:** `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
-
-```
-AZURE_CLIENT_SECRET
-```
-**Descrição:** Client Secret do Service Principal
-**Exemplo:** `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
+### 🔑 Azure Individual Secrets (Duplicação removida)
 
 ### 🐳 Container Registry
 ```
@@ -325,7 +333,19 @@ az cognitiveservices account keys list \
 
 ## 🔍 Validation Script
 
-Use o script abaixo para validar se todos os secrets estão configurados:
+Use o script de validação para verificar se todos os secrets estão configurados:
+
+```bash
+# Executar validação completa
+./scripts/validate-secrets.sh
+
+# Ou usar o script integrado no setup
+./scripts/setup-workflows.sh
+```
+
+### Script Manual de Validação
+
+Se preferir validar manualmente:
 
 ```bash
 #!/bin/bash

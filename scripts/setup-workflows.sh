@@ -101,7 +101,7 @@ echo "5. 📋 Gerar documentação"
 echo "6. 🚀 Deploy inicial"
 echo ""
 
-read -p "Digite sua escolha (1-6): " choice
+read -r -p "Digite sua escolha (1-6): " choice
 
 case $choice in
     1)
@@ -157,6 +157,17 @@ setup_secrets() {
     if az ad sp list --display-name "$SP_NAME" --query '[0].appId' -o tsv | grep -q .; then
         warning "Service Principal já existe: $SP_NAME"
         CLIENT_ID=$(az ad sp list --display-name "$SP_NAME" --query '[0].appId' -o tsv)
+        
+        # Tentar extrair secrets existentes se AZURE_CREDENTIALS estiver configurado
+        if gh secret list | grep -q "AZURE_CREDENTIALS"; then
+            log "Verificando se secrets individuais estão configurados..."
+            
+            # Verificar se os secrets individuais existem
+            if ! gh secret list | grep -q "AZURE_CLIENT_ID"; then
+                warning "AZURE_CLIENT_ID não configurado, mas AZURE_CREDENTIALS existe"
+                warning "Para usar a nova autenticação, configure os secrets individuais"
+            fi
+        fi
     else
         log "Criando Service Principal: $SP_NAME"
         
@@ -174,12 +185,25 @@ setup_secrets() {
         # Configurar secrets principais
         log "Configurando secrets principais..."
         
-        # AZURE_CREDENTIALS
-        echo "$SP_OUTPUT" | gh secret set AZURE_CREDENTIALS
+        # AZURE_CLIENT_ID
+        echo "$CLIENT_ID" | gh secret set AZURE_CLIENT_ID
+        success "AZURE_CLIENT_ID configurado"
         
-        # Secrets individuais
+        # AZURE_CLIENT_SECRET
+        echo "$CLIENT_SECRET" | gh secret set AZURE_CLIENT_SECRET
+        success "AZURE_CLIENT_SECRET configurado"
+        
+        # AZURE_SUBSCRIPTION_ID
         echo "$SUBSCRIPTION_ID" | gh secret set AZURE_SUBSCRIPTION_ID
+        success "AZURE_SUBSCRIPTION_ID configurado"
+        
+        # AZURE_TENANT_ID
         echo "$TENANT_ID" | gh secret set AZURE_TENANT_ID
+        success "AZURE_TENANT_ID configurado"
+        
+        # AZURE_CREDENTIALS (for backward compatibility, if needed)
+        echo "$SP_OUTPUT" | gh secret set AZURE_CREDENTIALS
+        success "AZURE_CREDENTIALS configurado (backward compatibility)"
         echo "$CLIENT_ID" | gh secret set AZURE_CLIENT_ID
         echo "$CLIENT_SECRET" | gh secret set AZURE_CLIENT_SECRET
         
@@ -197,7 +221,7 @@ setup_interactive_secrets() {
     # OpenAI API Key
     if ! gh secret list | grep -q "OPENAI_API_KEY"; then
         echo ""
-        read -p "Digite sua OpenAI API Key (ou pressione Enter para pular): " openai_key
+        read -r -p "Digite sua OpenAI API Key (ou pressione Enter para pular): " openai_key
         if [[ -n "$openai_key" ]]; then
             echo "$openai_key" | gh secret set OPENAI_API_KEY
             success "OPENAI_API_KEY configurado"
@@ -207,7 +231,7 @@ setup_interactive_secrets() {
     # Teams Webhook URL
     if ! gh secret list | grep -q "TEAMS_WEBHOOK_URL"; then
         echo ""
-        read -p "Digite a URL do webhook do Teams (ou pressione Enter para pular): " teams_webhook
+        read -r -p "Digite a URL do webhook do Teams (ou pressione Enter para pular): " teams_webhook
         if [[ -n "$teams_webhook" ]]; then
             echo "$teams_webhook" | gh secret set TEAMS_WEBHOOK_URL
             success "TEAMS_WEBHOOK_URL configurado"
@@ -217,7 +241,7 @@ setup_interactive_secrets() {
     # Slack Webhook URL
     if ! gh secret list | grep -q "SLACK_WEBHOOK_URL"; then
         echo ""
-        read -p "Digite a URL do webhook do Slack (ou pressione Enter para pular): " slack_webhook
+        read -r -p "Digite a URL do webhook do Slack (ou pressione Enter para pular): " slack_webhook
         if [[ -n "$slack_webhook" ]]; then
             echo "$slack_webhook" | gh secret set SLACK_WEBHOOK_URL
             success "SLACK_WEBHOOK_URL configurado"
@@ -227,7 +251,7 @@ setup_interactive_secrets() {
     # Deployment Approvers
     if ! gh secret list | grep -q "DEPLOYMENT_APPROVERS"; then
         echo ""
-        read -p "Digite os usuários aprovadores (separados por vírgula): " approvers
+        read -r -p "Digite os usuários aprovadores (separados por vírgula): " approvers
         if [[ -n "$approvers" ]]; then
             echo "$approvers" | gh secret set DEPLOYMENT_APPROVERS
             success "DEPLOYMENT_APPROVERS configurado"
@@ -240,10 +264,10 @@ validate_workflows() {
     log "Validando workflows..."
     
     local workflows=(
-        ".github/workflows/phoenix-infrastructure.yml"
-        ".github/workflows/phoenix-applications.yml"
-        ".github/workflows/phoenix-monitoring.yml"
-        ".github/workflows/phoenix-cicd.yml"
+        ".github/workflows/phoenix-basic.yml"
+        ".github/workflows/phoenix-infrastructure-ultimate.yml"
+        ".github/workflows/phoenix-applications-ultimate.yml"
+        ".github/workflows/phoenix-monitoring-ultimate.yml"
     )
     
     for workflow in "${workflows[@]}"; do
@@ -484,7 +508,7 @@ case $SETUP_TYPE in
         generate_docs
         
         echo ""
-        read -p "Deseja executar o deploy inicial? (y/N): " deploy_choice
+        read -r -p "Deseja executar o deploy inicial? (y/N): " deploy_choice
         if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
             initial_deploy
         fi
