@@ -60,7 +60,6 @@ on:
         type: boolean
 
 env:
-  TERRAFORM_VERSION: '1.6.0'
   AZURE_CLI_VERSION: '2.53.0'
   PYTHON_VERSION: '3.11'
   NODE_VERSION: '18.x'
@@ -123,10 +122,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq bc curl git tree
           
-          # Install Terraform
+          # Install Terraform using HashiCorp's recommended method
           wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
           echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-          sudo apt-get update && sudo apt-get install -y terraform=${{ env.TERRAFORM_VERSION }}
+          sudo apt-get update && sudo apt-get install -y terraform
           
           # Install Azure CLI
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
@@ -695,7 +694,7 @@ jobs:
               # Install Terraform and validation tools
               wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
               echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-              sudo apt-get update && sudo apt-get install -y terraform=${{ env.TERRAFORM_VERSION }}
+              sudo apt-get update && sudo apt-get install -y terraform
               
               # Install TFLint
               curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
@@ -873,7 +872,7 @@ jobs:
     
     strategy:
       fail-fast: false
-      max-parallel: ${{ needs.orchestration-engine.outputs.parallel-execution == 'true' && 3 || 1 }}
+      max-parallel: 3
       matrix:
         environment: ${{ fromJson(needs.orchestration-engine.outputs.environment-matrix) }}
         wave: ${{ fromJson(needs.orchestration-engine.outputs.deployment-waves) }}
@@ -896,7 +895,6 @@ jobs:
       - name: 🔧 Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ env.TERRAFORM_VERSION }}
           terraform_wrapper: false
           
       - name: 🔐 Azure Authentication
@@ -1259,12 +1257,11 @@ jobs:
           
           ## 📋 Executive Summary
           
-          **Deployment ID:** `${{ needs.orchestration-engine.outputs.deployment-id }}`  
-          **Strategy:** `${{ needs.orchestration-engine.outputs.deployment-strategy }}`  
-          **Environments:** `${{ needs.orchestration-engine.outputs.environment-matrix }}`  
-          **Duration:** `${{ needs.orchestration-engine.outputs.estimated-duration }}s`  
-          **Cost Estimate:** `${{ fromJson(needs.orchestration-engine.outputs.cost-estimation).estimated_monthly_cost }}` USD/month  
-          **Risk Level:** `${{ fromJson(needs.orchestration-engine.outputs.risk-assessment).level }}`  
+          **Deployment ID:** ${{ needs.orchestration-engine.outputs.deployment-id }}
+          **Strategy:** ${{ needs.orchestration-engine.outputs.deployment-strategy }}
+          **Environments:** Multiple environments deployed
+          **Duration:** ${{ needs.orchestration-engine.outputs.estimated-duration }}s
+          **Risk Level:** See risk assessment below
           
           ## 🎯 Deployment Results
           
@@ -1277,15 +1274,11 @@ jobs:
           
           ## 📊 Change Impact Analysis
           
-          ```json
-          ${{ needs.orchestration-engine.outputs.change-impact }}
-          ```
+          See workflow outputs for detailed change analysis.
           
           ## ⚠️ Risk Assessment
           
-          ```json
-          ${{ needs.orchestration-engine.outputs.risk-assessment }}
-          ```
+          See workflow outputs for detailed risk assessment.
           
           ## 🌊 Deployment Waves Summary
           
