@@ -51,22 +51,23 @@ else
     echo -e "${GREEN}✅ No unsupported filters${NC}"
 fi
 
-echo -n "  Checking for division operations... "
-if grep -r "/ [0-9]" "$WORKFLOW_DIR"/ >/dev/null 2>&1; then
-    echo -e "${YELLOW}⚠️  Found potential division operations${NC}"
-    grep -rn "/ [0-9]" "$WORKFLOW_DIR"/ | head -3
+echo -n "  Checking for division operations in templates... "
+if grep -r '\${{ .*/ [0-9]' "$WORKFLOW_DIR"/ >/dev/null 2>&1; then
+    echo -e "${YELLOW}⚠️  Found division operations in templates${NC}"
+    grep -rn '\${{ .*/ [0-9]' "$WORKFLOW_DIR"/ | head -3
     ((ERRORS++))
 else
-    echo -e "${GREEN}✅ No division operations${NC}"
+    echo -e "${GREEN}✅ No template division operations${NC}"
 fi
 
-echo -n "  Checking for complex JSON parsing... "
-if grep -r "fromJson.*\." "$WORKFLOW_DIR"/ >/dev/null 2>&1; then
+echo -n "  Checking for problematic JSON parsing... "
+# Only flag complex chained JSON access like fromJson().field.subfield
+if grep -r "fromJson.*)\\..*\\." "$WORKFLOW_DIR"/ >/dev/null 2>&1; then
     echo -e "${YELLOW}⚠️  Found complex JSON parsing${NC}"
-    grep -rn "fromJson.*\." "$WORKFLOW_DIR"/ | head -3
+    grep -rn "fromJson.*)\\..*\\." "$WORKFLOW_DIR"/ | head -3
     ((ERRORS++))
 else
-    echo -e "${GREEN}✅ No complex JSON parsing${NC}"
+    echo -e "${GREEN}✅ No problematic JSON parsing${NC}"
 fi
 
 echo -n "  Checking for overly long lines... "

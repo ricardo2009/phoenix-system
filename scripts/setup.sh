@@ -107,7 +107,7 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "Subscriptions disponíveis:"
     az account list --query '[].{Name:name, Id:id, State:state}' -o table
-    read -p "Digite o ID da subscription: " SUB_ID
+    read -r -p "Digite o ID da subscription: " SUB_ID
     az account set --subscription "$SUB_ID"
     print_success "Subscription alterada para: $SUB_ID"
 fi

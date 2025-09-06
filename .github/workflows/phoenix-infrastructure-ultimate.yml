@@ -133,9 +133,12 @@ jobs:
           echo "✅ Advanced toolchain installed"
           
       - name: 🔐 Azure Authentication
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           
       - name: 📊 Generate Deployment Metadata
         id: metadata
@@ -730,9 +733,12 @@ jobs:
           
       - name: 🔐 Azure Authentication
         if: matrix.validation.type != 'syntax'
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           
       - name: 🔍 Execute ${{ matrix.validation.type }} Validation
         id: validation
@@ -898,9 +904,12 @@ jobs:
           terraform_wrapper: false
           
       - name: 🔐 Azure Authentication
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           
       - name: ⏳ Wait for Dependencies
         if: matrix.wave.depends_on != null
@@ -1069,9 +1078,12 @@ jobs:
           esac
           
       - name: 🔐 Azure Authentication
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           
       - name: 🧪 Execute ${{ matrix.test.type }} Tests
         run: |
